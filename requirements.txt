@@ -179,3 +179,4 @@ xgboost==3.0.0
 XlsxWriter==3.0.9
 yt-dlp==2025.4.30
 zstandard==0.23.0
+opencv-python-headless
