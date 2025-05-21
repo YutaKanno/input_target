@@ -141,7 +141,7 @@ def return_lists(df_fil):
 tab1, tab2 = st.tabs(['input target', 'show data'])
 with tab1:
     b_name_list, b_lr_list, plate_x_list, plate_z_list, pt_list, speed_list, result_list, inning_list, s_list, b_list, o_list, target_x_list, target_z_list, youtube_url, point, bg_image = return_lists(df_fil)
-    col1, col2, col3 = st.columns([8,4,5])
+    col1, col2, col3 = st.columns([4,2,3])
     with col1:
         components.html(youtube_url, height=500)
     with col2:

@@ -115,6 +115,7 @@ pyod==2.0.4
 pyparsing==3.1.2
 PyPDF2==3.0.1
 pypng==0.20220715.0
+PySimpleGUI==5.0.3
 PySocks==1.7.1
 python-dateutil==2.8.2
 python-dotenv==1.0.1
@@ -179,4 +180,3 @@ xgboost==3.0.0
 XlsxWriter==3.0.9
 yt-dlp==2025.4.30
 zstandard==0.23.0
-opencv-python-headless
