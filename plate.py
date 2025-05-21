@@ -1,6 +1,7 @@
 from streamlit_drawable_canvas import st_canvas
 from PIL import Image
 import streamlit as st
+import cv2
 
 # === クリア状態制御用関数 ===
 def clear_canvas():
@@ -8,7 +9,7 @@ def clear_canvas():
     st.session_state.counter += 1
 
 # === 描画キャンバス表示関数 ===
-def plate(打席左右):
+def plate(bg_np_array):
     x, y = 0, 0
     # セッションステート初期化
     if "canvas_key" not in st.session_state:
@@ -16,24 +17,22 @@ def plate(打席左右):
     if "counter" not in st.session_state:
         st.session_state.counter = 1
 
-    # 背景画像読み込み
-    if 打席左右 == '左':
-        bg_image = Image.open("Plate_L.png")
-    else:
-        bg_image = Image.open("Plate_R.png")
-    width, height = bg_image.size
+     # NumPy配列（OpenCV画像） → RGB変換
+    rgb_img = cv2.cvtColor(bg_np_array, cv2.COLOR_BGR2RGB)
 
-    # Canvas 表示（keyにより強制再描画）
-    # Canvas 表示（keyにより強制再描画）
+    # Pillow画像オブジェクトに変換（これだけは必要）
+    image = Image.fromarray(rgb_img)
+
+    # Canvas
     canvas_result = st_canvas(
         fill_color="rgba(255, 255, 255, 0.0)",
         stroke_width=10,
         stroke_color="#000000",
-        background_image=bg_image,
+        background_image=image,
         update_streamlit=True,
-        height=height,
-        width=width,
-        drawing_mode="point",
+        height=400,
+        width=400,
+        drawing_mode="freedraw",
         key=st.session_state.canvas_key
     )
 

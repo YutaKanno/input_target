@@ -3,9 +3,12 @@ import streamlit.components.v1 as components
 import plate
 import matplotlib.pyplot as plt
 import pandas as pd
-from PIL import Image
+#from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
+import base64
+import cv2
+import io
 
 st.set_page_config(
         page_title="Input Target App",
@@ -34,6 +37,19 @@ data = pd.read_csv('test_data.csv', encoding='cp932')
 data['守備チーム'] = np.where(data['表.裏'] == '表', data['後攻チーム'], data['先攻チーム'])
 df = data[data['守備チーム'] == '東海大学']
 
+
+
+with open("Plate_R.txt", "r", encoding="utf-8") as f:
+    plate_R = f.read()
+with open("Plate_L.txt", "r", encoding="utf-8") as f:
+    plate_L = f.read()
+
+def base64_to_np(base64_str):
+    img_data = base64.b64decode(base64_str)
+    img_array = np.frombuffer(img_data, np.uint8)
+    img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)  # BGR形式で読み込み
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # RGBに変換
+    return img
 
 
 
@@ -101,9 +117,9 @@ def return_lists(df_fil):
     point = (400*plate_x_list[st.session_state["index"]]/261, 400-400*plate_z_list[st.session_state["index"]]/261)
 
     if b_lr_list[st.session_state['index']] == '右':
-        bg_image = Image.open("Plate_R.png").convert("RGB")
+        bg_image = base64_to_np(plate_R)
     else:
-        bg_image = Image.open("Plate_L.png").convert("RGB")
+        bg_image = base64_to_np(plate_L)
         
     return b_name_list, b_lr_list, plate_x_list, plate_z_list, pt_list, speed_list, result_list, inning_list, s_list, b_list, o_list, target_x_list, target_z_list, youtube_url, point, bg_image
 
@@ -125,15 +141,15 @@ def return_lists(df_fil):
 tab1, tab2 = st.tabs(['input target', 'show data'])
 with tab1:
     b_name_list, b_lr_list, plate_x_list, plate_z_list, pt_list, speed_list, result_list, inning_list, s_list, b_list, o_list, target_x_list, target_z_list, youtube_url, point, bg_image = return_lists(df_fil)
-    col1, col2, col3 = st.columns([4,2,2])
+    col1, col2, col3 = st.columns([8,4,5])
     with col1:
         components.html(youtube_url, height=500)
     with col2:
         fig, ax = plt.subplots()
-        ax.imshow(bg_image, extent=[0, bg_image.width, 0, bg_image.height])
+        ax.imshow(bg_image, extent=[0, 400, 0, 400])
         ax.scatter(*point, color='red', zorder=15)
-        ax.set_xlim(0, bg_image.width)
-        ax.set_ylim(0, bg_image.height)
+        ax.set_xlim(0, 400)
+        ax.set_ylim(0, 400)
         ax.set_aspect('equal')
         ax.set_xlim(2,398)
         ax.set_ylim(2,398)
@@ -147,7 +163,7 @@ with tab1:
         st.write(f'**{result_list[st.session_state["index"]]} {pt_list[st.session_state["index"]]}({round(speed_list[st.session_state["index"]])}km/h)**')
         
     with col3:
-        target_x, target_z = plate.plate(b_lr_list[st.session_state["index"]])
+        target_x, target_z = plate.plate(bg_image)
         st.write('#### 目標位置を入力してください')
         
         # 入力値をdf_filに反映
@@ -174,7 +190,7 @@ with tab2:
         components.html(youtube_url, height=500)
     with col2:
         fig, ax = plt.subplots()
-        ax.imshow(bg_image, extent=[0, bg_image.width, 0, bg_image.height])
+        ax.imshow(bg_image, extent=[0, 400, 0, 400])
         ax.scatter(*point, color='red', zorder=15)
         ax.scatter(
             target_x_list[st.session_state["index"]],
@@ -185,8 +201,8 @@ with tab2:
         ax.text(target_x_list[st.session_state["index"]],
                 target_z_list[st.session_state["index"]] - 20,
                 'target', color='blue', ha='center', fontsize=10, zorder=20) 
-        ax.set_xlim(0, bg_image.width)
-        ax.set_ylim(0, bg_image.height)
+        ax.set_xlim(0, 400)
+        ax.set_ylim(0, 400)
         ax.set_aspect('equal')
         ax.set_xlim(5,395)
         ax.set_ylim(5,395)
