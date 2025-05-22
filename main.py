@@ -154,11 +154,19 @@ with tab1:
         st.write(f'**{result_list[st.session_state["index"]]} {pt_list[st.session_state["index"]]}({round(speed_list[st.session_state["index"]])}km/h)**')
         
     with col3:
-        target_x, target_z = plate.plate(b_lr_list[st.session_state['index']])
+        target_x, target_z = plate.plate()
+        
         score, comment = '-', ''
-        if target_x != 0 and target_z != 0:
-            score = st.radio('自己評価', ['-',1,2,3,4,5], horizontal=True)
-            comment = st.text_area('コメント')
+        options = ['-', 1, 2, 3, 4, 5]
+        if "reset_flag" not in st.session_state:
+                st.session_state.reset_flag = False
+
+        if st.session_state.reset_flag:
+            st.session_state.radio_selection = options[0]
+            st.session_state.reset_flag = False  # フラグを戻す
+
+        score = st.radio('自己評価', options, horizontal=True)
+        comment = st.text_area('コメント')
         
         
         # 入力値をdf_filに反映
@@ -174,6 +182,7 @@ with tab1:
         data.at[df_fil.index[st.session_state["index"]], 'comment'] = comment
 
         if st.button('次のプレーへ'):
+            st.session_state.reset_flag = True
             plate.clear_canvas()
             data.to_csv('test_data.csv', encoding='cp932', index=False)
             if st.session_state["index"] < len(pt_list) - 1:
