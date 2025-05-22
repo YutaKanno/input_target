@@ -215,7 +215,7 @@ with tab2:
         st.write(f'**{result_list[st.session_state["index"]]} {pt_list[st.session_state["index"]]}({round(speed_list[st.session_state["index"]])}km/h)**')
         
     with col3:
-        st.write(f'**自己評価: {int(score_list[st.session_state["index"]])}点 / 5点**')
+        st.write(f'**自己評価: {score_list[st.session_state["index"]]}点 / 5点**')
         st.write('**コメント:**')
         st.write(comment_list[st.session_state["index"]])
         
