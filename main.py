@@ -1,6 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
-import plate
+import input_target
 import matplotlib.pyplot as plt
 import pandas as pd
 from PIL import Image
@@ -54,7 +54,7 @@ with col03:
 
 # フィルタリング
 df_fil1 = name_fil[name_fil['回'] == selected_inning]
-df_fil = df_fil1[(df_fil1['target_x'].isin(['0', 0])) & (df_fil1['target_z'].isin(['0', 0]))]
+df_fil = df_fil1[(df_fil1['target_x'].isin(['0', 0])) & (df_fil1['target_z'].isin(['0', 0]))].copy()
 
 # === indexのリセット判定 ===
 if (
@@ -118,6 +118,8 @@ def return_lists(df_fil):
 
 
 
+
+
     
 
 
@@ -154,7 +156,7 @@ with tab1:
         st.write(f'**{result_list[st.session_state["index"]]} {pt_list[st.session_state["index"]]}({round(speed_list[st.session_state["index"]])}km/h)**')
         
     with col3:
-        target_x, target_z = plate.plate()
+        target_x, target_z = input_target.plate(bg_image)
         
         score, comment = '-', ''
         options = ['-', 1, 2, 3, 4, 5]
@@ -183,7 +185,8 @@ with tab1:
 
         if st.button('次のプレーへ'):
             st.session_state.reset_flag = True
-            plate.clear_canvas()
+            input_target.clear_canvas()
+            temp = data[(data['投手氏名'] == selected_name) & (data['試合日時'] == selected_date) & (data['回'] == selected_inning) & (data['打者氏名'] == b_name_list[st.session_state["index"]])]
             data.to_csv('test_data.csv', encoding='cp932', index=False)
             if st.session_state["index"] < len(pt_list) - 1:
                 st.session_state["index"] += 1
