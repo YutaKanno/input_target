@@ -1,10 +1,7 @@
-from streamlit_drawable_canvas import st_canvas
-from PIL import Image
-import streamlit as st
-from io import BytesIO
 import streamlit as st
 from streamlit_drawable_canvas import st_canvas
 from PIL import Image, ImageDraw
+from io import BytesIO  # Base64エンコードのためにBytesIOをインポート
 
 # === クリア状態制御用関数 ===
 def clear_canvas():
@@ -31,11 +28,16 @@ def plate():
 
     bg_image = create_white_canvas_with_box()
 
+    # PIL ImageをBytesIOに保存し、それをst_canvasに渡す
+    img_bytes = BytesIO()
+    bg_image.save(img_bytes, format="PNG")  # PNG形式で保存
+    img_bytes.seek(0)  # ファイルの先頭に移動
+
     canvas_result = st_canvas(
         fill_color="rgba(255, 255, 255, 0.0)",
         stroke_width=10,
         stroke_color="#ff0000",
-        background_image=bg_image,
+        background_image=Image.open(img_bytes),  # BytesIOから再度PIL Imageとして読み込む
         update_streamlit=True,
         height=400,
         width=400,
@@ -47,8 +49,8 @@ def plate():
         objects = canvas_result.json_data["objects"]
         if objects:
             last_obj = objects[-1]
-            x = round(263*last_obj["left"]/400, 1)
-            y = round(263*last_obj["top"]/400, 1)
+            x = round(263 * last_obj["left"] / 400, 1)
+            y = round(263 * last_obj["top"] / 400, 1)
             return x, y
 
     return x, y
