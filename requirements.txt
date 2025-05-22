@@ -109,14 +109,12 @@ pydantic==2.7.2
 pydantic_core==2.18.3
 pydeck==0.9.1
 Pygments==2.14.0
-pyinstaller==6.7.0
 pyinstaller-hooks-contrib==2024.6
 PyMsgBox==1.0.9
 pyod==2.0.4
 pyparsing==3.1.2
 PyPDF2==3.0.1
 pypng==0.20220715.0
-PySimpleGUI==5.0.3
 PySocks==1.7.1
 python-dateutil==2.8.2
 python-dotenv==1.0.1
