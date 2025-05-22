@@ -107,7 +107,7 @@ def return_lists(df_fil):
     URL = url_list[st.session_state["index"]]
 
     youtube_url = f'''
-    <iframe width="650" height="415" 
+    <iframe width="100%" height="415" 
     src="{URL}&start={second}&autoplay=1&mute=1" 
     title="YouTube video player" frameborder="0" 
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
