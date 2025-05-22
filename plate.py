@@ -1,6 +1,14 @@
 from streamlit_drawable_canvas import st_canvas
 from PIL import Image
 import streamlit as st
+from io import BytesIO
+
+def load_image(image_path):
+    with open(image_path, "rb") as f:
+        data = f.read()
+    return Image.open(BytesIO(data))
+
+
 
 # === クリア状態制御用関数 ===
 def clear_canvas():
@@ -18,9 +26,9 @@ def plate(打席左右):
 
     # 背景画像読み込み
     if 打席左右 == '左':
-        bg_image = Image.open("Plate_L.png")
+        bg_image = load_image("Plate_L.png")
     else:
-        bg_image = Image.open("Plate_R.png")
+        bg_image = load_image("Plate_R.png")
     width, height = bg_image.size
 
     # Canvas 表示（keyにより強制再描画）
