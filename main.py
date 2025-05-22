@@ -3,12 +3,9 @@ import streamlit.components.v1 as components
 import plate
 import matplotlib.pyplot as plt
 import pandas as pd
-#from PIL import Image
+from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
-import base64
-import cv2
-import io
 
 st.set_page_config(
         page_title="Input Target App",
@@ -39,17 +36,6 @@ df = data[data['守備チーム'] == '東海大学']
 
 
 
-with open("Plate_R.txt", "r", encoding="utf-8") as f:
-    plate_R = f.read()
-with open("Plate_L.txt", "r", encoding="utf-8") as f:
-    plate_L = f.read()
-
-def base64_to_np(base64_str):
-    img_data = base64.b64decode(base64_str)
-    img_array = np.frombuffer(img_data, np.uint8)
-    img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)  # BGR形式で読み込み
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # RGBに変換
-    return img
 
 
 
@@ -102,6 +88,8 @@ def return_lists(df_fil):
     start_list = df_fil['start_tag_sec'].tolist()
     target_x_list = df_fil['target_x'].tolist()
     target_z_list = df_fil['target_z'].tolist()
+    score_list = df_fil['score'].tolist()
+    comment_list = df_fil['comment'].tolist()
 
     second = int(start_list[st.session_state["index"]])
     URL = url_list[st.session_state["index"]]
@@ -117,11 +105,13 @@ def return_lists(df_fil):
     point = (400*plate_x_list[st.session_state["index"]]/261, 400-400*plate_z_list[st.session_state["index"]]/261)
 
     if b_lr_list[st.session_state['index']] == '右':
-        bg_image = base64_to_np(plate_R)
+        bg_image = Image.open('Plate_R.png')
     else:
-        bg_image = base64_to_np(plate_L)
+        bg_image = Image.open('Plate_L.png')
+    
+
         
-    return b_name_list, b_lr_list, plate_x_list, plate_z_list, pt_list, speed_list, result_list, inning_list, s_list, b_list, o_list, target_x_list, target_z_list, youtube_url, point, bg_image
+    return b_name_list, b_lr_list, plate_x_list, plate_z_list, pt_list, speed_list, result_list, inning_list, s_list, b_list, o_list, target_x_list, target_z_list, youtube_url, point, bg_image, score_list, comment_list
 
 
 
@@ -140,13 +130,14 @@ def return_lists(df_fil):
 
 tab1, tab2 = st.tabs(['input target', 'show data'])
 with tab1:
-    b_name_list, b_lr_list, plate_x_list, plate_z_list, pt_list, speed_list, result_list, inning_list, s_list, b_list, o_list, target_x_list, target_z_list, youtube_url, point, bg_image = return_lists(df_fil)
+    b_name_list, b_lr_list, plate_x_list, plate_z_list, pt_list, speed_list, result_list, inning_list, s_list, b_list, o_list, target_x_list, target_z_list, youtube_url, point, bg_image, score_list, comment_list = return_lists(df_fil)
     col1, col2, col3 = st.columns([4,2,3])
     with col1:
         components.html(youtube_url, height=500)
     with col2:
         fig, ax = plt.subplots()
-        ax.imshow(bg_image, extent=[0, 400, 0, 400])
+        bg_image_np = np.array(bg_image)
+        ax.imshow(bg_image_np, extent=[0, 400, 0, 400])
         ax.scatter(*point, color='red', zorder=15)
         ax.set_xlim(0, 400)
         ax.set_ylim(0, 400)
@@ -163,16 +154,24 @@ with tab1:
         st.write(f'**{result_list[st.session_state["index"]]} {pt_list[st.session_state["index"]]}({round(speed_list[st.session_state["index"]])}km/h)**')
         
     with col3:
-        target_x, target_z = plate.plate(bg_image)
-        st.write('#### 目標位置を入力してください')
+        target_x, target_z = plate.plate(b_lr_list[st.session_state['index']])
+        score, comment = '-', ''
+        if target_x != 0 and target_z != 0:
+            score = st.radio('自己評価', ['-',1,2,3,4,5], horizontal=True)
+            comment = st.text_area('コメント')
+        
         
         # 入力値をdf_filに反映
         df_fil.at[df_fil.index[st.session_state["index"]], 'target_x'] = target_x
         df_fil.at[df_fil.index[st.session_state["index"]], 'target_z'] = target_z
+        df_fil.at[df_fil.index[st.session_state["index"]], 'score'] = score
+        df_fil.at[df_fil.index[st.session_state["index"]], 'comment'] = comment
 
         # 元データdataにも反映（indexで直接指定）
         data.at[df_fil.index[st.session_state["index"]], 'target_x'] = target_x
         data.at[df_fil.index[st.session_state["index"]], 'target_z'] = target_z
+        data.at[df_fil.index[st.session_state["index"]], 'score'] = score
+        data.at[df_fil.index[st.session_state["index"]], 'comment'] = comment
 
         if st.button('次のプレーへ'):
             plate.clear_canvas()
@@ -184,7 +183,7 @@ with tab1:
 
 
 with tab2:
-    b_name_list, b_lr_list, plate_x_list, plate_z_list, pt_list, speed_list, result_list, inning_list, s_list, b_list, o_list, target_x_list, target_z_list, youtube_url, point, bg_image = return_lists(df_fil1)
+    b_name_list, b_lr_list, plate_x_list, plate_z_list, pt_list, speed_list, result_list, inning_list, s_list, b_list, o_list, target_x_list, target_z_list, youtube_url, point, bg_image, score_list, comment_list = return_lists(df_fil1)
     col1, col2, col3 = st.columns([4,2,2])
     with col1:
         components.html(youtube_url, height=500)
@@ -216,6 +215,10 @@ with tab2:
         st.write(f'**{result_list[st.session_state["index"]]} {pt_list[st.session_state["index"]]}({round(speed_list[st.session_state["index"]])}km/h)**')
         
     with col3:
+        st.write(f'**自己評価: {int(score_list[st.session_state["index"]])}点 / 5点**')
+        st.write('**コメント:**')
+        st.write(comment_list[st.session_state["index"]])
+        
         if st.button('NEXT'):
             if st.session_state["index"] < len(pt_list) - 1:
                 st.session_state["index"] += 1
