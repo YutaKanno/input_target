@@ -32,7 +32,7 @@ st.markdown(hide_all_style, unsafe_allow_html=True)
 
 data = pd.read_csv('test_data.csv', encoding='cp932')
 data['守備チーム'] = np.where(data['表.裏'] == '表', data['後攻チーム'], data['先攻チーム'])
-df = data[data['守備チーム'] == '東海大学']
+df = data[data['守備チーム'] == '筑波大学']
 
 
 
