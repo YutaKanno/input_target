@@ -52,7 +52,7 @@ with col03:
     selected_inning = st.selectbox('inning', date_fil['回'].unique(), key='selected_inning')
 
 # フィルタリング
-df_fil1 = name_fil[name_fil['回'] == selected_inning]
+df_fil1 = date_fil[date_fil['回'] == selected_inning]
 df_fil = df_fil1[(df_fil1['target_x'].isin(['0', 0, None, np.nan])) & (df_fil1['target_z'].isin(['0', 0, None, np.nan]))].copy()
 
 # === indexのリセット判定 ===
@@ -231,3 +231,4 @@ with tab2:
     
 with tab3:
     st.dataframe(data)
+
